@@ -1,13 +1,19 @@
 <script>
     import Auth from './Auth.svelte'
-    import { send, user, channels, messages } from './store'
+    import { user, channels, messages, broadcast, joinChannel, leaveChannel } from './store'
 
     let message = ''
     let currentChannel = 1
 
     function sendMessage() {
-        send("broadcast", { channel: currentChannel, message })
+        broadcast(message, currentChannel)
         message =  ''
+    }
+
+    function join(channelId) {
+        leaveChannel(currentChannel)
+        joinChannel(channelId)
+        currentChannel = channelId;
     }
 </script>
 
@@ -18,13 +24,13 @@
         <div class="wrapper">
             <div class="channels">
                 {#each Object.values($channels) as channel}
-                    <p>{channel.name}</p>
+                    <p class:selected="{channel.id === currentChannel}"><a href="#" on:click|preventDefault={join(channel.id)}>{channel.name}</a></p>
                 {/each}
             </div>
 
             <div class="chat">
                 <div class="messages">
-                    {#each $messages as msg}
+                    {#each $messages[currentChannel] as msg}
                         <p>
                             {msg.sender.name} {msg.payload.message} - {msg.timestamp}
                         </p>
@@ -50,6 +56,9 @@ input {
 .channels {
     min-width: 200px;
     border-right: 1px solid #ddd;
+}
+.selected {
+    font-weight: bold;
 }
 .chat {
     flex-grow: 1;
