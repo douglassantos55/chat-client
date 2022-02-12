@@ -1,5 +1,6 @@
 <script>
     import Auth from './Auth.svelte'
+    import Date from './Date.svelte'
     import { user, channels, messages, broadcast, joinChannel, leaveChannel } from './store'
 
     let message = ''
@@ -32,7 +33,7 @@
                 <div class="messages">
                     {#each $messages[currentChannel] as msg}
                         <p>
-                            {msg.sender.name} {msg.payload.message} - {msg.timestamp}
+                            <strong>{msg.sender.name}</strong> {msg.payload.message} - <Date timestamp={msg.timestamp} />
                         </p>
                     {/each}
                 </div>
