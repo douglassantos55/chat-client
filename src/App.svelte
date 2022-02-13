@@ -1,9 +1,11 @@
 <script>
     import Auth from './Auth.svelte'
     import Date from './Date.svelte'
+    import { tick, onDestroy } from 'svelte'
     import { user, channels, messages, broadcast, joinChannel, leaveChannel } from './store'
 
     let message = ''
+    let placeholder
     let currentChannel = 1
 
     function sendMessage() {
@@ -11,11 +13,21 @@
         message =  ''
     }
 
-    function join(channelId) {
+    async function join(channelId) {
         leaveChannel(currentChannel)
         joinChannel(channelId)
         currentChannel = channelId;
+
+        await tick()
+        placeholder && placeholder.scrollIntoView(false)
     }
+
+    const unsubscribe = messages.subscribe(async () => {
+        await tick()
+        placeholder && placeholder.scrollIntoView(false)
+    })
+
+    onDestroy(unsubscribe)
 </script>
 
 <main>
@@ -36,6 +48,8 @@
                             <strong>{msg.sender.name}</strong> {msg.payload.message} - <Date timestamp={msg.timestamp} />
                         </p>
                     {/each}
+
+                    <div bind:this={placeholder}>&nbsp;</div>
                 </div>
 
                 <form on:submit|preventDefault={sendMessage}>
@@ -64,11 +78,14 @@ input {
 .chat {
     flex-grow: 1;
     display: flex;
+    max-height: 100vh;
     flex-direction: column;
 }
 .messages {
     flex-grow: 1;
     padding: 15px;
     background: #eee;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 </style>
