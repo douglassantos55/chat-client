@@ -2,52 +2,73 @@
     import Auth from './Auth.svelte'
     import Date from './Date.svelte'
     import { tick, onDestroy } from 'svelte'
-    import { user, channels, messages, broadcast, joinChannel, leaveChannel } from './store'
+    import { user, channels, messages, openChat, privMsg, broadcast, joinChannel, leaveChannel } from './store'
 
     let message = ''
     let placeholder
-    let currentChannel = 1
+    let currentChannel = $channels[0]
 
     function sendMessage() {
-        broadcast(message, currentChannel)
+        if (currentChannel && currentChannel.priv) {
+            privMsg(message, currentChannel.id)
+        } else {
+            broadcast(message, currentChannel.id)
+        }
+
         message =  ''
     }
 
-    async function join(channelId) {
-        leaveChannel(currentChannel)
-        joinChannel(channelId)
-        currentChannel = channelId;
+    async function join(channel) {
+        if (currentChannel && !currentChannel.priv) {
+            leaveChannel(currentChannel.id)
+        }
 
+        if (!channel.priv) {
+            joinChannel(channel.id)
+        }
+
+        currentChannel = channel;
+        scrollDown()
+    }
+
+    async function scrollDown() {
         await tick()
         placeholder && placeholder.scrollIntoView(false)
     }
 
-    const unsubscribe = messages.subscribe(async () => {
-        await tick()
-        placeholder && placeholder.scrollIntoView(false)
-    })
-
+    const unsubscribe = messages.subscribe(scrollDown)
     onDestroy(unsubscribe)
 </script>
 
 <main>
+{JSON.stringify(currentChannel)}
     {#if !$user}
         <Auth />
     {:else}
         <div class="wrapper">
             <div class="channels">
                 {#each Object.values($channels) as channel}
-                    <p class:selected="{channel.id === currentChannel}"><a href="#" on:click|preventDefault={join(channel.id)}>{channel.name}</a></p>
+                    <p class:selected="{currentChannel && channel.id === currentChannel.id}">
+                        <a href="#" on:click|preventDefault={join(channel)}>
+                            {channel.name}
+                        </a>
+                    </p>
                 {/each}
             </div>
 
             <div class="chat">
                 <div class="messages">
-                    {#each $messages[currentChannel] as msg}
-                        <p>
-                            <strong>{msg.sender.name}</strong> {msg.payload.message} - <Date timestamp={msg.timestamp} />
-                        </p>
-                    {/each}
+                    {#if currentChannel && $messages[currentChannel.id]}
+                        {#each $messages[currentChannel.id] as msg}
+                            <p>
+                                <a href="#" on:click={openChat(msg.sender)}>
+                                    <strong>{msg.sender.name}</strong>
+                                </a>
+
+                                {msg.payload.message} - <Date timestamp={msg.timestamp} />
+                            </p>
+                        {/each}
+                    {/if}
 
                     <div bind:this={placeholder}>&nbsp;</div>
                 </div>
