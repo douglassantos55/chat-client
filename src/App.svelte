@@ -1,43 +1,22 @@
 <script>
     import Auth from './Auth.svelte'
-    import Date from './Date.svelte'
-    import { tick, onDestroy } from 'svelte'
-    import { user, channels, messages, openChat, privMsg, broadcast, joinChannel, leaveChannel } from './store'
+    import Channel from './Channel.svelte'
+    import Messages from './Messages.svelte'
+    import { user, channels, joinChannel, leaveChannel } from './store'
 
     let message = ''
-    let placeholder
-    let currentChannel = $channels[0]
+    let currentChannel
 
     function sendMessage() {
-        if (currentChannel && currentChannel.priv) {
-            privMsg(message, currentChannel.id)
-        } else {
-            broadcast(message, currentChannel.id)
-        }
-
+        currentChannel && currentChannel.send(message)
         message =  ''
     }
 
     async function join(channel) {
-        if (currentChannel && !currentChannel.priv) {
-            leaveChannel(currentChannel.id)
-        }
-
-        if (!channel.priv) {
-            joinChannel(channel.id)
-        }
-
-        currentChannel = channel;
-        scrollDown()
+        currentChannel && currentChannel.leave()
+        channel.join()
+        currentChannel = channel
     }
-
-    async function scrollDown() {
-        await tick()
-        placeholder && placeholder.scrollIntoView(false)
-    }
-
-    const unsubscribe = messages.subscribe(scrollDown)
-    onDestroy(unsubscribe)
 </script>
 
 <main>
@@ -58,26 +37,7 @@
             </div>
 
             <div class="chat">
-                <div class="messages">
-                    {#if currentChannel}
-                        <h3>{currentChannel.name}</h3>
-
-                        {#if $messages[currentChannel.id]}
-
-                            {#each $messages[currentChannel.id] as msg}
-                                <p>
-                                    <a href="#" on:click={openChat(msg.sender)}>
-                                        <strong>{msg.sender.name}</strong>
-                                    </a>
-
-                                    {msg.payload.message} - <Date timestamp={msg.timestamp} />
-                                </p>
-                            {/each}
-                        {/if}
-                    {/if}
-
-                    <div bind:this={placeholder}>&nbsp;</div>
-                </div>
+                <Channel channel={currentChannel} />
 
                 <form on:submit|preventDefault={sendMessage}>
                     <input type="text" placeholder="Write your message here" bind:value={message} />
@@ -107,12 +67,5 @@ input {
     display: flex;
     max-height: 100vh;
     flex-direction: column;
-}
-.messages {
-    flex-grow: 1;
-    padding: 15px;
-    background: #eee;
-    max-height: 100vh;
-    overflow-y: auto;
 }
 </style>

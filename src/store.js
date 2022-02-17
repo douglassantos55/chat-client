@@ -1,10 +1,51 @@
-import { writable } from 'svelte/store'
+import { get, writable } from 'svelte/store'
 
 export const user = writable(null)
-export const channels = writable([])
+export const channels = writable({})
 export const messages = writable({ 1: [] })
 
 const ws = new WebSocket('ws://localhost:8080')
+
+class Channel {
+    constructor(data) {
+        this.id = data.id
+        this.name = data.name
+        this.messages = writable([])
+    }
+
+    addMessage(message) {
+        this.messages.update(messages => ([
+            ...messages,
+            message,
+        ]))
+    }
+
+    send(message) {
+        broadcast(message, this.id)
+    }
+
+    leave() {
+        leaveChannel(this.id)
+    }
+
+    join() {
+        joinChannel(this.id)
+    }
+}
+
+class PrivChannel extends Channel {
+    send(message) {
+        privMsg(message, this.id)
+    }
+
+    leave() {
+        console.log('not necesseary to leave priv channel')
+    }
+
+    join() {
+        console.log('not necesseary to join priv channel')
+    }
+}
 
 ws.onmessage = function (message) {
     const data = JSON.parse(message.data)
@@ -12,40 +53,33 @@ ws.onmessage = function (message) {
 
     if (data.type === "auth") {
         user.set(data.payload.user)
-        channels.set(data.payload.channels)
+
+        Object.values(data.payload.channels).forEach(channel => {
+            channels.update(channels => ({
+                ...channels,
+                [channel.id]: new Channel(channel),
+            }))
+        })
     }
 
     if (data.type === "broadcast") {
-        messages.update(messages => {
-            const channel = data.payload.channel
-
-            if (!messages[channel]) {
-                messages[channel] = []
-            }
-
-            messages[channel] = [...messages[channel], data]
-            return messages
-        })
+        const channel = data.payload.channel
+        const chans = get(channels)
+        chans[channel].addMessage(data)
     }
 
     if (data.type === "priv_msg") {
         const id = data.payload.channel.id
 
         channels.update(channels => {
+            const channel = new PrivChannel(data.payload.channel)
+
             if (!channels[id]) {
-                channels[id] = {...data.payload.channel, priv: true}
+                channels[id] = channel
             }
 
+            channels[id].addMessage(data)
             return channels
-        })
-
-        messages.update(messages => {
-            if (!messages[id]) {
-                messages[id] = []
-            }
-
-            messages[id] = [...messages[id], data]
-            return messages
         })
     }
 }
@@ -53,7 +87,7 @@ ws.onmessage = function (message) {
 export function openChat(user) {
     channels.update(channels => {
         if (!channels[user.id]) {
-            channels[user.id] = {...user, priv: true}
+            channels[user.id] = new PrivChannel(user)
         }
         return channels
     })

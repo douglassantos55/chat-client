@@ -1,0 +1,22 @@
+<script>
+    import Messages from './Messages.svelte'
+
+    export let channel
+</script>
+
+<div class="channel">
+    {#if channel}
+        <h3>{channel.name}</h3>
+        <Messages messages={channel.messages} />
+    {/if}
+</div>
+
+<style>
+.channel {
+    flex-grow: 1;
+    padding: 15px;
+    background: #eee;
+    max-height: 100vh;
+    overflow-y: auto;
+}
+</style>
