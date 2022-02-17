@@ -41,12 +41,13 @@
 </script>
 
 <main>
-{JSON.stringify(currentChannel)}
     {#if !$user}
         <Auth />
     {:else}
         <div class="wrapper">
             <div class="channels">
+                <h3>{ $user.name }</h3>
+
                 {#each Object.values($channels) as channel}
                     <p class:selected="{currentChannel && channel.id === currentChannel.id}">
                         <a href="#" on:click|preventDefault={join(channel)}>
@@ -58,16 +59,21 @@
 
             <div class="chat">
                 <div class="messages">
-                    {#if currentChannel && $messages[currentChannel.id]}
-                        {#each $messages[currentChannel.id] as msg}
-                            <p>
-                                <a href="#" on:click={openChat(msg.sender)}>
-                                    <strong>{msg.sender.name}</strong>
-                                </a>
+                    {#if currentChannel}
+                        <h3>{currentChannel.name}</h3>
 
-                                {msg.payload.message} - <Date timestamp={msg.timestamp} />
-                            </p>
-                        {/each}
+                        {#if $messages[currentChannel.id]}
+
+                            {#each $messages[currentChannel.id] as msg}
+                                <p>
+                                    <a href="#" on:click={openChat(msg.sender)}>
+                                        <strong>{msg.sender.name}</strong>
+                                    </a>
+
+                                    {msg.payload.message} - <Date timestamp={msg.timestamp} />
+                                </p>
+                            {/each}
+                        {/if}
                     {/if}
 
                     <div bind:this={placeholder}>&nbsp;</div>
