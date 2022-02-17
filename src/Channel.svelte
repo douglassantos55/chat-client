@@ -1,6 +1,5 @@
 <script>
     import Messages from './Messages.svelte'
-
     export let channel
 </script>
 

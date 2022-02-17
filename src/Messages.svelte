@@ -1,19 +1,18 @@
 <script>
-    import { openChat } from './store'
     import { tick, onDestroy } from 'svelte'
+    import { openChat } from './store'
     import Date from './Date.svelte'
 
+    let unsub
     let placeholder
     export let messages
 
-    const unsub = messages.subscribe(scrollDown)
+    $: if (messages) {
+        unsub && unsub()
+        unsub = messages.subscribe(scrollDown)
+    }
 
-    onDestroy(() => {
-        console.log('done')
-        unsub()
-    })
-
-    function scrollDown() {
+    export function scrollDown() {
         tick().then(() => placeholder.scrollIntoView(false))
     }
 </script>
