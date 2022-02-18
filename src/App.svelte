@@ -14,6 +14,10 @@
         message =  ''
     }
 
+    $: if (!currentChannel && $channels) {
+        currentChannel = Object.values($channels)[0]
+    }
+
     async function join(event) {
         const { channel } = event.detail
         currentChannel && currentChannel.leave()
