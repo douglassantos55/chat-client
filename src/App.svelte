@@ -45,7 +45,7 @@
                 <Channel channel={currentChannel} on:channel.join={join} />
 
                 <form on:submit|preventDefault={sendMessage}>
-                    <input type="text" placeholder="Write your message here" bind:value={message} />
+                    <input type="text" placeholder="Write your message here" bind:value={message} autofocus />
                 </form>
             </div>
         </div>
