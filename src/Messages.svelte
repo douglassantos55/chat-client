@@ -1,5 +1,6 @@
 <script>
     import { tick, onDestroy, createEventDispatcher } from 'svelte'
+    import { fly, fade } from 'svelte/transition'
     import channels from './store/channels'
     import user from './store/user'
     import Date from './Date.svelte'
@@ -30,7 +31,7 @@
 <div class="messages">
     {#if $messages}
         {#each $messages as msg}
-            <p>
+            <p in:fly="{{ y: 10, duration: 200 }}" out:fade="{{ duration: 100 }}">
                 {#if $user.id != msg.sender.id}
                     <a href="#" on:click={openChat(msg.sender)}>
                         <strong>{msg.sender.name}</strong>
