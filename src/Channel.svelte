@@ -18,4 +18,9 @@
     max-height: 100vh;
     overflow-y: auto;
 }
+h3 {
+    margin: 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+}
 </style>

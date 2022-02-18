@@ -3,7 +3,7 @@
     import { fly, fade } from 'svelte/transition'
     import channels from './store/channels'
     import user from './store/user'
-    import Date from './Date.svelte'
+    import Timestamp from './Timestamp.svelte'
 
     let unsub
     let placeholder
@@ -41,10 +41,22 @@
                 {/if}
 
 
-                {msg.payload.message} - <Date timestamp={msg.timestamp} />
+                <span class="message">{msg.payload.message}</span>
+                <Timestamp timestamp={msg.timestamp} />
             </p>
         {/each}
     {/if}
 
     <p bind:this={placeholder}>&nbsp;</p>
 </div>
+
+<style>
+p {
+    display: flex;
+    align-items: center;
+}
+.message {
+    flex-grow: 1;
+    padding: 0 10px;
+}
+</style>
