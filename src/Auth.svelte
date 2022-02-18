@@ -1,5 +1,5 @@
 <script>
-    import { auth } from './store'
+    import user from './store/user'
 
     let name = ''
     let error = ''
@@ -8,7 +8,7 @@
         if (name.trim() == "") {
             error = 'Enter your name above'
         } else {
-            auth(name)
+            user.login(name)
         }
     }
 </script>

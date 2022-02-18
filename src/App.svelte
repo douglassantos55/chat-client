@@ -2,7 +2,9 @@
     import Auth from './Auth.svelte'
     import Channel from './Channel.svelte'
     import Messages from './Messages.svelte'
-    import { user, channels, joinChannel, leaveChannel } from './store'
+    import ChannelsList from './ChannelsList.svelte'
+    import user from './store/user'
+    import channels from './store/channels'
 
     let message = ''
     let currentChannel
@@ -12,7 +14,8 @@
         message =  ''
     }
 
-    async function join(channel) {
+    async function join(event) {
+        const { channel } = event.detail
         currentChannel && currentChannel.leave()
         channel.join()
         currentChannel = channel
@@ -24,17 +27,15 @@
         <Auth />
     {:else}
         <div class="wrapper">
-            <div class="channels">
+            <aside class="sidebar">
                 <h3>{ $user.name }</h3>
 
-                {#each Object.values($channels) as channel}
-                    <p class:selected="{currentChannel && channel.id === currentChannel.id}">
-                        <a href="#" on:click|preventDefault={join(channel)}>
-                            {channel.name}
-                        </a>
-                    </p>
-                {/each}
-            </div>
+                <ChannelsList
+                    channels={channels}
+                    current={currentChannel}
+                    on:channel.join={join}
+                />
+            </aside>
 
             <div class="chat">
                 <Channel channel={currentChannel} />
@@ -55,12 +56,9 @@ input {
     display: flex;
     min-height: 100vh;
 }
-.channels {
+.sidebar {
     min-width: 200px;
     border-right: 1px solid #ddd;
-}
-.selected {
-    font-weight: bold;
 }
 .chat {
     flex-grow: 1;

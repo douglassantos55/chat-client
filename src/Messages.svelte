@@ -1,6 +1,6 @@
 <script>
     import { tick, onDestroy } from 'svelte'
-    import { openChat } from './store'
+    import channels from './store/channels'
     import Date from './Date.svelte'
 
     let unsub
@@ -21,7 +21,7 @@
     {#if $messages}
         {#each $messages as msg}
             <p>
-                <a href="#" on:click={openChat(msg.sender)}>
+                <a href="#" on:click={channels.openChat(msg.sender)}>
                     <strong>{msg.sender.name}</strong>
                 </a>
 
