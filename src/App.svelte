@@ -38,7 +38,7 @@
             </aside>
 
             <div class="chat">
-                <Channel channel={currentChannel} />
+                <Channel channel={currentChannel} on:channel.join={join} />
 
                 <form on:submit|preventDefault={sendMessage}>
                     <input type="text" placeholder="Write your message here" bind:value={message} />

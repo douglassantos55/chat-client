@@ -1,11 +1,21 @@
 <script>
-    import { tick, onDestroy } from 'svelte'
+    import { tick, onDestroy, createEventDispatcher } from 'svelte'
     import channels from './store/channels'
+    import user from './store/user'
     import Date from './Date.svelte'
 
     let unsub
     let placeholder
     export let messages
+
+    const dispatch = createEventDispatcher()
+
+    function openChat(user) {
+        channels.openChat(user)
+        dispatch('channel.join', {
+            channel: $channels[user.id]
+        })
+    }
 
     $: if (messages) {
         unsub && unsub()
@@ -21,9 +31,14 @@
     {#if $messages}
         {#each $messages as msg}
             <p>
-                <a href="#" on:click={channels.openChat(msg.sender)}>
+                {#if $user.id != msg.sender.id}
+                    <a href="#" on:click={openChat(msg.sender)}>
+                        <strong>{msg.sender.name}</strong>
+                    </a>
+                {:else}
                     <strong>{msg.sender.name}</strong>
-                </a>
+                {/if}
+
 
                 {msg.payload.message} - <Date timestamp={msg.timestamp} />
             </p>

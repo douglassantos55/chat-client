@@ -6,7 +6,7 @@
 <div class="channel">
     {#if channel}
         <h3>{channel.name}</h3>
-        <Messages messages={channel.messages} />
+        <Messages messages={channel.messages} on:channel.join />
     {/if}
 </div>
 
