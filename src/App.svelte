@@ -10,7 +10,7 @@
     let currentChannel
 
     function sendMessage() {
-        currentChannel && currentChannel.send(message)
+        currentChannel.send(message)
         message =  ''
     }
 
@@ -20,8 +20,6 @@
 
     async function join(event) {
         const { channel } = event.detail
-        currentChannel && currentChannel.leave()
-        channel.join()
         currentChannel = channel
     }
 </script>
