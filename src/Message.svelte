@@ -15,9 +15,9 @@
         })
     }
 
-    setTimeout(() => {
+    $: if (message.isNew) {
         dispatch('message.read', { message })
-    }, 1000)
+    }
 </script>
 
 <p in:fly="{{ y: 10, duration: 200 }}" out:fade="{{ duration: 100 }}">

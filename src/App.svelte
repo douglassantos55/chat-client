@@ -1,10 +1,12 @@
 <script>
+    import { onDestroy } from 'svelte'
     import Auth from './Auth.svelte'
     import Channel from './Channel.svelte'
     import Messages from './Messages.svelte'
     import ChannelsList from './ChannelsList.svelte'
     import user from './store/user'
     import channels from './store/channels'
+    import socket from './lib/socket'
 
     let message = ''
     let currentChannel
@@ -22,6 +24,8 @@
         const { channel } = event.detail
         currentChannel = channel
     }
+
+    onDestroy(() => socket.close())
 </script>
 
 <main>
