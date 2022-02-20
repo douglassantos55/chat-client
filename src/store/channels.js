@@ -20,10 +20,9 @@ function createChannels() {
 
         update(channels => {
             if (!channels[id]) {
-                channels[id] = new PrivChannel({
-                    ...evt.payload.channel,
-                    messages: [evt],
-                })
+                const channel = new PrivChannel(evt.payload.channel)
+                channels[id] = channel
+                channel.addMessage(evt)
             }
             return channels
         })

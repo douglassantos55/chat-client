@@ -1,22 +1,23 @@
-import { get, writable } from 'svelte/store'
+import { derived, get, writable } from 'svelte/store'
 import socket from './socket'
+import messages from '../store/messages'
 
 export class Channel {
     constructor(data) {
         this.id = data.id
         this.name = data.name
-        this.messages = writable(data.messages || {})
+        this.messages = derived(messages, msgs => {
+            return Object.values(msgs).filter(msg => {
+                return msg.payload.channel === this.id
+            })
+        })
 
         socket.on('broadcast', this.addMessage.bind(this))
     }
 
     addMessage(message) {
-        console.log(message)
         if (message.payload.channel === this.id) {
-            this.messages.update(messages => ({
-                ...messages,
-                [message.id]: { ...message, isNew: true },
-            }))
+            messages.add({ ...message, isNew: true })
         }
     }
 
@@ -37,17 +38,17 @@ export class PrivChannel {
     constructor(data) {
         this.id = data.id
         this.name = data.name
-        this.messages = writable(data.messages || {})
+        this.messages = derived(messages, msgs => {
+            return Object.values(msgs).filter(msg => {
+                return msg.payload.channel.id === this.id
+            })
+        })
         socket.on('priv_msg', this.addMessage.bind(this))
     }
 
     addMessage(message) {
-        console.log(message)
         if (message.payload.channel.id === this.id) {
-            this.messages.update(messages => ({
-                ...messages,
-                [message.id]: { ...message, isNew: true },
-            }))
+            messages.add({ ...message, isNew: true })
         }
     }
 

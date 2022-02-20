@@ -1,10 +1,12 @@
 <script>
-    import { createEventDispatcher } from 'svelte'
+    import { onDestroy, createEventDispatcher } from 'svelte'
     import { fly, fade } from 'svelte/transition'
     import user from './store/user'
     import channels from './store/channels'
+    import messages from './store/messages'
     import Timestamp from './Timestamp.svelte'
 
+    let timeout
     export let message
     const dispatch = createEventDispatcher()
 
@@ -16,8 +18,14 @@
     }
 
     $: if (message.isNew) {
-        dispatch('message.read', { message })
+        timeout = setTimeout(function () {
+            messages.markAsRead(message)
+        }, 1000)
     }
+
+    onDestroy(function () {
+        clearTimeout(timeout)
+    })
 </script>
 
 <p in:fly="{{ y: 10, duration: 200 }}" out:fade="{{ duration: 100 }}">
