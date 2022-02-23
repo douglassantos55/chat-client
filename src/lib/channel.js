@@ -6,6 +6,7 @@ export class Channel {
     constructor(data) {
         this.id = data.id
         this.name = data.name
+        this.active = true
         this.messages = derived(messages, msgs => {
             return Object.values(msgs).filter(msg => {
                 return msg.payload.channel === this.id
@@ -25,10 +26,12 @@ export class Channel {
     }
 
     leave() {
+        this.active = false
         socket.leaveChannel(this.id)
     }
 
     join() {
+        this.active = true
         socket.joinChannel(this.id)
     }
 }
@@ -37,6 +40,7 @@ export class PrivChannel {
     constructor(data) {
         this.id = data.id
         this.name = data.name
+        this.active = true
         this.messages = derived(messages, msgs => {
             return Object.values(msgs).filter(msg => {
                 return msg.payload.channel.id === this.id

@@ -16,8 +16,8 @@
     }).length
 </script>
 
-<p class:selected class="channel-item">
-    <a class="channel" href="#" on:click|preventDefault={dispatch('channel.join', { channel })}>
+<p class:disabled={!channel.active} class:selected class="channel-item">
+    <a class="channel" href="#" on:click|preventDefault={dispatch('channel.switch', { channel })}>
         {channel.name}
 
         {#if newMessagesCount > 0}
@@ -25,7 +25,11 @@
         {/if}
     </a>
 
-    <a href="#" class="leave" on:click|self|preventDefault={dispatch('channel.leave', { channel })}>Leave</a>
+    {#if channel.active}
+        <a href="#" class="leave" on:click|self|preventDefault={dispatch('channel.leave', { channel })}>Leave</a>
+    {:else}
+        <a href="#" class="leave" on:click|self|preventDefault={dispatch('channel.join', { channel })}>Join</a>
+    {/if}
 </p>
 
 <style>
@@ -45,6 +49,9 @@
 }
 .selected {
     font-weight: bold;
+}
+.disabled > a {
+    color: red;
 }
 .count {
     font-size: 95%;

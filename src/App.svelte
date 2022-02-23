@@ -16,14 +16,23 @@
         message =  ''
     }
 
-    async function join(event) {
+    function join(event) {
         const { channel } = event.detail
-        currentChannel = channel
+        channel.join()
+        switchChannel(event)
     }
 
-    async function leave(evt) {
+    function switchChannel(evt) {
         const { channel } = evt.detail
-        socket.leaveChannel(channel.id)
+
+        if (channel.active) {
+            currentChannel = channel
+        }
+    }
+
+    function leave(evt) {
+        const { channel } = evt.detail
+        channel.leave()
 
         if (channel.id === currentChannel.id) {
             currentChannel = undefined
@@ -51,6 +60,7 @@
                     channels={channels}
                     current={currentChannel}
                     on:channel.join={join}
+                    on:channel.switch={switchChannel}
                     on:channel.leave={leave}
                 />
             </aside>
@@ -75,7 +85,9 @@ input {
     min-height: 100vh;
 }
 .sidebar {
+    display: flex;
     min-width: 200px;
+    flex-direction: column;
     border-right: 1px solid #ddd;
 }
 .chat {

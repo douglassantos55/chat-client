@@ -7,6 +7,7 @@ class Socket {
 
         this.ws.onmessage = (message) => {
             const data = JSON.parse(message.data)
+            console.log(data)
             this.dispatcher.dispatch(data)
         }
     }
