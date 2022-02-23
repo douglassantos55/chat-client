@@ -12,7 +12,7 @@
     }
 
     export function scrollDown() {
-        tick().then(() => placeholder.scrollIntoView(false))
+        tick().then(() => placeholder && placeholder.scrollIntoView(false))
     }
 </script>
 

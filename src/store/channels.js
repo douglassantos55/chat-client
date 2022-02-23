@@ -37,6 +37,14 @@ function createChannels() {
         })
     }
 
+    function remove(evt) {
+        const id = evt.payload.channel
+        update(channels => {
+            const { [id]: removed, ...rest } = channels
+            return rest
+        })
+    }
+
     const channels = {
         subscribe,
         openChat,
@@ -44,6 +52,7 @@ function createChannels() {
 
     socket.on('auth', registerAll)
     socket.on('priv_msg', register)
+    socket.on('left_channel', remove)
 
     return channels
 }

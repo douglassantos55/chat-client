@@ -28,7 +28,7 @@
     })
 </script>
 
-<p in:fly="{{ y: 10, duration: 200 }}" out:fade="{{ duration: 100 }}">
+<p in:fly="{{ y: 10, duration: 200 }}">
     {#if $user.id != message.sender.id}
         <a href="#" on:click={openChat(message.sender)}>
             <strong>{message.sender.name}</strong>

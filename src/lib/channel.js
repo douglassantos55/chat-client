@@ -11,7 +11,6 @@ export class Channel {
                 return msg.payload.channel === this.id
             })
         })
-
         socket.on('broadcast', this.addMessage.bind(this))
     }
 

@@ -9,6 +9,7 @@
     {#each Object.values($channels) as channel}
         <ChannelListItem
             on:channel.join
+            on:channel.leave
             channel={channel}
             current={current}
         />

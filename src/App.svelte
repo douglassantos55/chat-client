@@ -1,5 +1,5 @@
 <script>
-    import { onDestroy } from 'svelte'
+    import { tick, onDestroy } from 'svelte'
     import Auth from './Auth.svelte'
     import Channel from './Channel.svelte'
     import Messages from './Messages.svelte'
@@ -16,16 +16,27 @@
         message =  ''
     }
 
-    $: if (!currentChannel && $channels) {
-        currentChannel = Object.values($channels)[0]
-    }
-
     async function join(event) {
         const { channel } = event.detail
         currentChannel = channel
     }
 
-    onDestroy(() => socket.close())
+    async function leave(evt) {
+        const { channel } = evt.detail
+        socket.leaveChannel(channel.id)
+
+        if (channel.id === currentChannel.id) {
+            currentChannel = undefined
+        }
+    }
+
+    const unsub = channels.subscribe(channels => {
+        if (!currentChannel) {
+            currentChannel = Object.values(channels)[0]
+        }
+    })
+
+    onDestroy(() => socket.close() && unsub())
 </script>
 
 <main>
@@ -40,6 +51,7 @@
                     channels={channels}
                     current={currentChannel}
                     on:channel.join={join}
+                    on:channel.leave={leave}
                 />
             </aside>
 
